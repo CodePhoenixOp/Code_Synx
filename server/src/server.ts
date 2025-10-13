@@ -23,14 +23,16 @@ app.use(express.static(path.join(__dirname, "public"))) // Serve static files
 
 const server = http.createServer(app)
 const io = new Server(server, {
-	cors: {
-		origin: "*",
-	},
-	maxHttpBufferSize: 1e8,
-	pingTimeout: 60000,
-})
+  cors: {
+    origin: "*", // allow all origins
+    methods: ["GET", "POST"],
+    credentials: false
+  },
+  maxHttpBufferSize: 1e8,
+  pingTimeout: 60000
+});
 
-let userSocketMap: User[] = []
+let userSocketMap: User[] = [];
 
 // Function to get all users in a room
 function getUsersInRoom(roomId: string): User[] {

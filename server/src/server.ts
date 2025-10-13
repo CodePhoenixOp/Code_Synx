@@ -14,9 +14,9 @@ const app = express()
 app.use(express.json())
 
 app.use(cors({
-  origin: "https://code-synx-p5kn.vercel.app", // your Vercel frontend
+  origin: "*", // use a specific frontend URL in production
   methods: ["GET", "POST"],
-  credentials: true
+  credentials: false // must be false if origin is '*'
 }));
 
 app.use(express.static(path.join(__dirname, "public"))) // Serve static files

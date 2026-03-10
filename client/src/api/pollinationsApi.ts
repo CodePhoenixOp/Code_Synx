@@ -1,11 +1,12 @@
 import axios, { AxiosInstance } from "axios"
 
-const pollinationsBaseUrl = "https://text.pollinations.ai"
+const openaiBaseUrl = "https://api.openai.com/v1"
 
 const instance: AxiosInstance = axios.create({
-    baseURL: pollinationsBaseUrl,
+    baseURL: openaiBaseUrl,
     headers: {
         "Content-Type": "application/json",
+        Authorization: `Bearer ${import.meta.env.VITE_OPENAI_API_KEY}`,
     },
 })
 

@@ -1,3 +1,4 @@
+
 import express, { Response, Request } from "express"
 import dotenv from "dotenv"
 import http from "http"
@@ -6,18 +7,41 @@ import { SocketEvent, SocketId } from "./types/socket"
 import { USER_CONNECTION_STATUS, User } from "./types/user"
 import { Server } from "socket.io"
 import path from "path"
+import axios from "axios"
 
 dotenv.config()
 
+
 const app = express()
+app.use(cors());
 
 app.use(express.json())
+app.post("/run", async (req: Request, res: Response) => {
+    try {
+        const { script, language, versionIndex, stdin } = req.body
 
-app.use(cors({
-  origin: "*", // use a specific frontend URL in production
-  methods: ["GET", "POST"],
-  credentials: false // must be false if origin is '*'
-}));
+        const response = await axios.post(
+            "https://api.jdoodle.com/v1/execute",
+            {
+                clientId: process.env.JDOODLE_CLIENT_ID,
+                clientSecret: process.env.JDOODLE_CLIENT_SECRET,
+                script,
+                stdin,
+                language,
+                versionIndex,
+            }
+        )
+
+        return res.json(response.data)
+    } catch (error: any) {
+        console.error("JDoodle Error:", error?.response?.data || error.message)
+
+        return res.status(500).json({
+            error: "Code execution failed",
+            details: error?.response?.data,
+        })
+    }
+})
 
 app.use(express.static(path.join(__dirname, "public"))) // Serve static files
 
@@ -33,7 +57,6 @@ const io = new Server(server, {
 });
 
 let userSocketMap: User[] = [];
-
 // Function to get all users in a room
 function getUsersInRoom(roomId: string): User[] {
 	return userSocketMap.filter((user) => user.roomId == roomId)
